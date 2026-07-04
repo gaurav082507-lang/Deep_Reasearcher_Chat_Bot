@@ -24,7 +24,7 @@ def web_search(query:str)->str:
         out.append(
             f'Title :{results['title']}\nURL :{results['url']}\nSnippet :{results['content'][:300]}'
         )
-        return "\n________\n.join(out)"
+    return "\n________\n.join(out)"
     
 @tool
 def scrape_url(url: str) -> str:
