@@ -28,6 +28,19 @@ with st.sidebar:
 
 
 # -------------------------------------------------
+# Helper: safely convert agent message content to plain string
+# (content can sometimes be a list of blocks instead of a str)
+# -------------------------------------------------
+def to_text(content):
+    if isinstance(content, list):
+        return "\n".join(
+            block.get("text", str(block)) if isinstance(block, dict) else str(block)
+            for block in content
+        )
+    return str(content)
+
+
+# -------------------------------------------------
 # Core pipeline function (SAME LOGIC, unchanged)
 # -------------------------------------------------
 def run_research_pipeline(topic: str) -> dict:
@@ -39,7 +52,7 @@ def run_research_pipeline(topic: str) -> dict:
         search_results = search_agent.invoke({
             'messages': [("user", f"Find the recent and Reliable information about:{topic}")]
         })
-        state['search_results'] = search_results['messages'][-1].content
+        state['search_results'] = to_text(search_results['messages'][-1].content)
         status.update(label="Step 1: Search Agent — done ✅", state="complete")
 
     with st.expander("🔍 Search Results (raw)", expanded=False):
@@ -55,7 +68,7 @@ def run_research_pipeline(topic: str) -> dict:
                 f"Search Results:\n{state['search_results'][:800]}"
             )]
         })
-        state['reader_results'] = reader_result['messages'][-1].content
+        state['reader_results'] = to_text(reader_result['messages'][-1].content)
         status.update(label="Step 2: Reader Agent — done ✅", state="complete")
 
     with st.expander("📖 Reader Results (raw)", expanded=False):
@@ -65,7 +78,7 @@ def run_research_pipeline(topic: str) -> dict:
     with st.status("Step 3: Structuring the Report...", expanded=True) as status:
         combined_research = (
             "Search Results\n" + state['search_results'] +
-            "\n\nReader Results\n".join(state["reader_results"])
+            "\n\nReader Results\n" + state["reader_results"]
         )
         report = writer_chain.invoke({
             'topic': topic,
