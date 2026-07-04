@@ -13,9 +13,73 @@ from datetime import datetime
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# The pipeline itself is untouched. We only import the function it exposes.
+# Pipeline logic (originally in pipeline.py) — inlined here so the app has
+# no dependency on a separate pipeline.py file. Logic is unchanged.
 # ---------------------------------------------------------------------------
-from pipeline import run_research_pipline
+from dotenv import load_dotenv
+load_dotenv()
+from agents import build_reader_agent, build_search_agent, writer_chain, critic_chain
+from rich import print as rprint
+
+
+def run_research_pipline(topic: str) -> dict:
+    state = {}
+    rprint("\n" + "=" * 50)
+    rprint("Step 1 Search_agent is Working........")
+    rprint("=" * 50)
+    search_agent = build_search_agent()
+    search_results = search_agent.invoke({
+        'messages': [("user", f"Find the recent and Reliable information about:{topic}")]
+    })
+    state['search_results'] = search_results['messages'][-1].content
+    rprint(state['search_results'])
+
+    rprint("\n" + "=" * 50)
+    rprint("Step 2 Reader_agent is Working........")
+    rprint("=" * 50)
+    reader_agent = build_reader_agent()
+    reader_result = reader_agent.invoke({
+        "messages": [("user",
+            f"Based on the following search results about '{topic}', "
+            f"pick the most relevant URL and scrape it for deeper content.\n\n"
+            f"Search Results:\n{state['search_results'][:800]}"
+        )]
+    })
+    state['reader_results'] = reader_result['messages'][-1].content
+    rprint(state['reader_results'])
+
+    rprint("\n" + "=" * 50)
+    rprint("Step 3 Structuring the Report........")
+    rprint("=" * 50)
+    combined_research = (
+        f'SEARCH CONTENT:\n{state["search_results"]} \n\n'
+        f'READER CONETNT:\n{state["reader_results"]} \n\n'
+    )
+    report = writer_chain.invoke({
+        'topic': topic,
+        'research': combined_research
+    })
+    state['report'] = report
+
+    rprint("\n" + "=" * 50)
+    rprint("Step 4 Analysing Report........")
+    rprint("=" * 50)
+    critics = critic_chain.invoke({
+        'report': report
+    })
+    state['critics'] = critics
+
+    rprint("\n" + "=" * 50)
+    rprint("Final Report")
+    rprint(report)
+    rprint("=" * 50)
+
+    rprint("\n" + "=" * 50)
+    rprint("Analysis of Report")
+    rprint(critics)
+    rprint("=" * 50)
+
+    return state
 
 
 # ============================================================================
