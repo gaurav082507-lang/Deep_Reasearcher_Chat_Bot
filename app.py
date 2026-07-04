@@ -119,7 +119,7 @@ if run_clicked:
 # -------------------------------------------------
 st.markdown("---")
 st.markdown(
-    "<div style='text-align:center'>Made with ❤️ by <b>Gaurav Gupta</b> | "
+    "<div style='text-align:center'>Made by <b>Gaurav Gupta</b> | "
     "<a href='https://www.linkedin.com/in/gaurav-gupta-79754a377' target='_blank'>LinkedIn</a></div>",
     unsafe_allow_html=True
 )
