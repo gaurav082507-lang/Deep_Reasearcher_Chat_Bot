@@ -434,22 +434,25 @@ def render_stepper(active_index: int):
         ("03", "Writer Chain", "Structuring report"),
         ("04", "Critic Chain", "Reviewing quality"),
     ]
-    html = "<div class='ds-stepper'>"
+    parts = ["<div class='ds-stepper'>"]
     for i, (num, label, sub) in enumerate(labels):
         state = ""
         if active_index > i or active_index == 4:
             state = "done"
         elif active_index == i:
             state = "active"
-        html += f"""
-        <div class="ds-step {state}">
-            <div class="ds-step-num">{"✓" if state == "done" else num}</div>
-            <div class="ds-step-label">{label}</div>
-            <div class="ds-step-sub">{sub}</div>
-        </div>
-        """
-    html += "</div>"
-    return html
+        num_display = "✓" if state == "done" else num
+        # Built as a single unbroken line (no leading whitespace) so
+        # Streamlit's Markdown parser never mistakes this for a code block.
+        parts.append(
+            f'<div class="ds-step {state}">'
+            f'<div class="ds-step-num">{num_display}</div>'
+            f'<div class="ds-step-label">{label}</div>'
+            f'<div class="ds-step-sub">{sub}</div>'
+            f'</div>'
+        )
+    parts.append("</div>")
+    return "".join(parts)
 
 
 stepper_placeholder = st.empty()
