@@ -1,12 +1,12 @@
 from dotenv import load_dotenv
 load_dotenv()
 from tools import web_search,scrape_url
-from langchain_mistralai import ChatMistralAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import create_agent
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
-LLM=ChatMistralAI(model='mistral-medium-3-5')
+LLM=ChatGoogleGenerativeAI(model='gemini-2.5-flash')
 
 def build_search_agent():
     return create_agent(
