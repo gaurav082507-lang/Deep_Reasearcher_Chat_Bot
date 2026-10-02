@@ -6,7 +6,7 @@ from langchain.agents import create_agent
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
-LLM=ChatGoogleGenerativeAI(model='gemini-2.5-flash')
+LLM=ChatGoogleGenerativeAI(model='gemini-3.5-flash-lite')
 
 def build_search_agent():
     return create_agent(
